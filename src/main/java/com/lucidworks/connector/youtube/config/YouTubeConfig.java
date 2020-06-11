@@ -5,6 +5,7 @@ import com.lucidworks.fusion.connector.plugin.api.config.ConnectorConfig;
 import com.lucidworks.fusion.connector.plugin.api.config.ConnectorPluginProperties;
 import com.lucidworks.fusion.schema.SchemaAnnotations.Property;
 import com.lucidworks.fusion.schema.SchemaAnnotations.RootSchema;
+import com.lucidworks.fusion.schema.UIHints;
 
 import java.util.List;
 
@@ -28,7 +29,8 @@ public interface YouTubeConfig extends ConnectorConfig<Properties> {
     @Property(
             title = "Channels to index",
             description = "The Channel id is the part that comes after channel/ in 'https://www.youtube.com/channel/UCPItOdfUk_tjlvqggkY-JsA'",
-            required = true
+            required = true,
+            order = 1
     )
     List<String> channels();
 
@@ -36,7 +38,9 @@ public interface YouTubeConfig extends ConnectorConfig<Properties> {
     @Property(
             title = "OAuth Token",
             description = "Minimum required scope is 'youtube.readonly'",
-            required = true
+            hints = UIHints.SECRET,
+            required = true,
+            order = 2
     )
     String oauthToken();
 
