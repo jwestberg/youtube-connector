@@ -3,6 +3,7 @@ package com.lucidworks.connector.youtube.config;
 import com.lucidworks.connector.youtube.config.YouTubeConfig.Properties;
 import com.lucidworks.fusion.connector.plugin.api.config.ConnectorConfig;
 import com.lucidworks.fusion.connector.plugin.api.config.ConnectorPluginProperties;
+import com.lucidworks.fusion.schema.SchemaAnnotations;
 import com.lucidworks.fusion.schema.SchemaAnnotations.Property;
 import com.lucidworks.fusion.schema.SchemaAnnotations.RootSchema;
 import com.lucidworks.fusion.schema.UIHints;
@@ -32,6 +33,7 @@ public interface YouTubeConfig extends ConnectorConfig<Properties> {
             required = true,
             order = 1
     )
+    @SchemaAnnotations.ArraySchema
     List<String> channels();
 
 
