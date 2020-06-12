@@ -1,6 +1,9 @@
 package com.lucidworks.connector.youtube.fetcher;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
@@ -31,15 +34,16 @@ public class YouTubeFetcher implements ContentFetcher {
   private static final Logger logger = LoggerFactory.getLogger(YouTubeFetcher.class);
 
   private final List<String> channels;
-  private final String oauthToken;
   private YouTube youtube;
+
+  private YouTubeConfig config;
 
   @Inject
   public YouTubeFetcher(
       YouTubeConfig config
   ) {
       channels = config.properties().channels();
-      oauthToken = config.properties().oauthToken();
+      this.config = config;
   }
 
   @Override
@@ -79,7 +83,6 @@ public class YouTubeFetcher implements ContentFetcher {
           logger.info("Requesting channelId={}", channelId);
           ChannelListResponse response = youtube.channels()
                   .list("contentDetails")
-                  .setOauthToken(oauthToken)
                   .setId(channelId).execute();
 
           if(response.isEmpty() || response.getItems() == null || response.getItems().isEmpty()) {
@@ -103,8 +106,7 @@ public class YouTubeFetcher implements ContentFetcher {
     try {
       VideoListResponse response = youtube.videos()
                       .list("snippet")
-                      .setId(String.join(",", videoIds))
-                      .setOauthToken(oauthToken).execute();
+                      .setId(String.join(",", videoIds)).execute();
       return response.getItems().stream().map(v -> toVideo(v)).collect(Collectors.toList());
     } catch (IOException e) {
       logger.error("Unable to list videos", e);
@@ -142,8 +144,7 @@ public class YouTubeFetcher implements ContentFetcher {
     try {
       YouTube.PlaylistItems.List req = youtube.playlistItems()
               .list("snippet,contentDetails")
-              .setPlaylistId(id)
-              .setOauthToken(oauthToken);
+              .setPlaylistId(id);
       if (pageToken != null) {
         req.setPageToken(pageToken);
       }
@@ -166,10 +167,12 @@ public class YouTubeFetcher implements ContentFetcher {
       return youtube;
     }
     try {
-      youtube = new YouTube.Builder(
-              GoogleNetHttpTransport.newTrustedTransport(),
-              JacksonFactory.getDefaultInstance(),
-              null).setApplicationName("youtube-fusion-plugin").build();
+      GoogleCredential cred = new GoogleCredential.Builder()
+              .setJsonFactory(JacksonFactory.getDefaultInstance())
+              .setTransport(GoogleNetHttpTransport.newTrustedTransport())
+              .setClientSecrets(config.properties().clientId(), config.properties().clientSecret()).build();
+      cred.setRefreshToken(config.properties().refreshToken());
+      youtube = new YouTube.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), request -> cred.initialize(request)).setApplicationName("youtube-fusion-plugin").build();
     } catch (Exception e) {
       logger.error("Couldn't connect to youtube", e);
       return null;

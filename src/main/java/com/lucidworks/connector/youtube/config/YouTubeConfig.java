@@ -36,13 +36,30 @@ public interface YouTubeConfig extends ConnectorConfig<Properties> {
 
 
     @Property(
-            title = "OAuth Token",
-            description = "Minimum required scope is 'youtube.readonly'",
-            hints = UIHints.SECRET,
+            title = "OAuth Client ID",
+            description = "Your OAuth Client ID. Minimum required scope is 'youtube.readonly'",
             required = true,
             order = 2
     )
-    String oauthToken();
+    String clientId();
 
+    @Property(
+            title = "OAuth Client secret",
+            description = "Your OAuth client secret",
+            required = true,
+            hints = UIHints.SECRET,
+            order = 3
+    )
+    String clientSecret();
+
+
+    @Property(
+            title = "OAuth Refresh Token",
+            description = "Your OAuth Refresh Token",
+            required = true,
+            hints = UIHints.SECRET,
+            order = 4
+    )
+    String refreshToken();
   }
 }

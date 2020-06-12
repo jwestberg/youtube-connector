@@ -18,4 +18,3 @@ This connector allows you to crawl metadata for YouTube videos in a cahnnel
 ## Potential improvements
 
 * Use checkpoints to do incremental crawling so you don't have to refetch all videos every time.
-* Improve OAuth configuration to use client id/secret + refresh tokens, rather than plain access tokens
